@@ -201,7 +201,7 @@ impl Scene for GameScene {
 				Vec2::new(f32::from(i*10 + X_POSITION_MOVES_SYMBOLE), f32::from(Y_POSITION_MOVES_SYMBOLE)));
 		}
 		
-		for p in self.particles.iter() {
+		for p in self.particles.iter().rev() {
 			graphics::draw(ctx, self.assets.borrow().get_texture(&p.get_texture_name()), DrawParams::new()
 				.position(p.get_position())
 				.color(p.get_color())
