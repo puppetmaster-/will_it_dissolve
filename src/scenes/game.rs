@@ -87,7 +87,6 @@ impl GameScene {
 	}
 	
 	fn after_work(&mut self, numbers: Vec<u8>) -> HashSet<usize>{
-		println!("afterworks numbers{:?}", numbers);
 		let mut tile_index = HashSet::new();
 		for i in 0..3{
 			if numbers[i*3] == numbers[i*3+1] && numbers[i*3] == numbers[i*3+2] && numbers[i*3] != 0{
