@@ -24,11 +24,7 @@ color-backtrace = { version = "0.1" }
 
 # ron
 ron = "0.5"
-#toml = "0.4"
 serde = { version = "1", features = ["serde_derive"] }
-
-# date
-#chrono = "0.4"
 
 [build-dependencies]
 winres = "0.1"
