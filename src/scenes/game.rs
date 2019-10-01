@@ -77,9 +77,9 @@ impl GameScene {
 	}
 	
 	fn change_tile_effect(&mut self, tile_index: HashSet<usize>, round: usize){
-		//let speed_y = self.randomizer.gen_range(1.0,1.5);
 		let directions = vec![Vec2::new(1.0,0.0),Vec2::new(0.0,1.0),Vec2::new(-1.0,0.0),Vec2::new(0.0,-1.0),Vec2::new(1.0,0.0)];
 		for n in tile_index{
+			self.tiles[n].enable();
 			let particle = Particle::new(self.tiles[n].position,directions[round])
 				.set_aging(self.randomizer.gen_range(0.002,0.004))
 				.set_texture_name(self.tiles[n].get_texture_name());
@@ -253,6 +253,9 @@ fn load_levels() ->Vec<Level>{
 		load_level(include_str!("../../assets/levels/level_7.ron")),
 		load_level(include_str!("../../assets/levels/level_8.ron")),
 		load_level(include_str!("../../assets/levels/level_9.ron")),
+		load_level(include_str!("../../assets/levels/level_10.ron")),
+		load_level(include_str!("../../assets/levels/level_11.ron")),
+		load_level(include_str!("../../assets/levels/level_12.ron")),
 		]
 }
 
