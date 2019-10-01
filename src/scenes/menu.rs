@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::cell::{RefCell};
 
 use tetra::{Context, input, audio};
-use tetra::input::{Key};
+use tetra::input::{Key, MouseButton};
 use tetra::graphics::{self,Vec2};
 use tetra::audio::{Sound, SoundInstance};
 
@@ -23,7 +23,7 @@ pub struct MenuScene {
 impl MenuScene {
 	pub fn new(ctx: &mut Context,config: Rc<Config>, assets: Rc<RefCell<Assets>>) -> tetra::Result<MenuScene> {
 		audio::set_master_volume(ctx, config.master_volume);
-		let background_music = Sound::from_file_data(include_bytes!("../../assets/music/track.mp3"));//soundlib.get_sound(&SoundName::Music);
+		let background_music = Sound::from_file_data(include_bytes!("../../assets/music/track.mp3"));
 		let background_music_instance = background_music.spawn(ctx)?;
 		background_music_instance.set_repeating(true);
 		background_music_instance.play();
@@ -41,7 +41,7 @@ impl Scene for MenuScene {
 	fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
 		self.tween_logo.update();
 		
-		if input::is_key_released(ctx, Key::Escape) || input::is_key_released(ctx, Key::Return) || input::is_key_released(ctx, Key::Space) {
+		if input::is_mouse_button_released(ctx, MouseButton::Left) || input::is_key_released(ctx, Key::Return) || input::is_key_released(ctx, Key::Space) {
 			Ok(Transition::Push(Box::new(GameScene::new(ctx, Rc::clone(&self.config), Rc::clone(&self.assets))?)))
 		}else if input::is_key_released(ctx, Key::Escape) || input::is_key_released(ctx, Key::Backspace){
 			Ok(Transition::Quit)
