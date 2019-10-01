@@ -1,0 +1,8 @@
+(
+	name: "Left",
+	number: 1,
+	values: [0,1,0,0,2,0,0,2,0],
+	states: [true,true,true,true,true,true,true,true,true],
+	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal],
+	moves: 1,
+)

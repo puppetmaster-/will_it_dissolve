@@ -1,0 +1,15 @@
+(
+	titel: "Will it dissolve?",
+	clear_color: (r:0.122,g:0.098,b:0.161,a:1.0),
+	window_width: 100,
+    window_height: 100,
+	window_scale: 4,
+	maximized: false,
+	fullscreen: false,
+	resizable: false,
+	scaling: ShowAllPixelPerfect,
+	show_mouse: true,
+	vsync: true,
+	quit_on_escape: false,
+	master_volume: 2.0,
+)
