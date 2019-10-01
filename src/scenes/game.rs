@@ -211,7 +211,7 @@ impl Scene for GameScene {
 
 		if self.state == GameState::Lost{
 			graphics::draw(ctx, &self.btn_back, DrawParams::default());
-		}else{
+		}else if self.click == 0 || self.state == GameState::Win {
 			graphics::draw(ctx, &self.btn_future, DrawParams::default());
 		}
 		
