@@ -63,6 +63,7 @@ impl GameScene {
 		for (i,b) in self.tiles.iter_mut().enumerate(){
 			b.number(self.levels[self.level-1].values[i]);
 			b.set_enabled(self.levels[self.level-1].states[i]);
+			b.mark(self.levels[self.level-1].flagged[i]);
 		}
 		self.state = GameState::Running;
 		self.btn_future.change_type_to(ButtonType::Future);

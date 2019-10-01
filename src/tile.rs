@@ -59,6 +59,10 @@ impl Tile {
 		(self.state == TileState::Plus || self.state == TileState::Minus)
 	}
 	
+	pub fn mark(&mut self, state: TileState){
+		self.state = state
+	}
+	
 	pub fn go_future(&mut self){
 		match self.state{
 			TileState::Plus => self.add_up(),
@@ -205,7 +209,7 @@ fn is_inside_hover_area(draw_position: Vec2, area: Rectangle, position: Vec2) ->
 	)
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash,Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash,Serialize, Deserialize)]
 pub enum TileState {
 	Normal,
 	Minus,
