@@ -68,3 +68,9 @@ section = "games"
 [package.metadata.winres]
 OriginalFilename = "will_it_dissolve.exe"
 LegalCopyright = "Copyright © 2019 Christian Fisch"
+
+[package.metadata.rpm]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+will_it_dissolve = { path = "/usr/bin/will_it_dissolve" }
