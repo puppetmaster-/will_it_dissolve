@@ -1,0 +1,8 @@
+(
+	name: "x-cheating",
+	number: 12,
+	values: [1,1,4,1,1,1,1,1,3],
+	states: [true,true,false,false,true,true,true,true,false],
+	flagged: [Normal,Normal,Plus,Plus,Normal,Normal,Normal,Normal,Minus],
+	moves: 3,
+)

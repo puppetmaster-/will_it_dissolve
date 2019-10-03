@@ -35,7 +35,7 @@ pub struct GameScene {
 
 impl GameScene {
 	pub fn new(_ctx: &mut Context,config: Rc<Config>, assets: Rc<RefCell<Assets>>) -> tetra::Result<GameScene> {
-		let level = 1;
+		let level = 10;
 		let levels = load_levels();
 		let randomizer = rand::thread_rng();
 		Ok(GameScene {
@@ -197,6 +197,7 @@ impl Scene for GameScene {
 		for b in self.tiles.iter(){
 			b.draw(ctx, DrawParams::default());
 		}
+		
 		for i in 0..self.click{
 			graphics::draw(ctx,self.assets.borrow().get_symbol(&SymbolName::SymbolClick),
 				Vec2::new(f32::from(i*10 + X_POSITION_MOVES_SYMBOLE), f32::from(Y_POSITION_MOVES_SYMBOLE)));
@@ -256,6 +257,7 @@ fn load_levels() ->Vec<Level>{
 		load_level(include_str!("../../assets/levels/level_10.ron")),
 		load_level(include_str!("../../assets/levels/level_11.ron")),
 		load_level(include_str!("../../assets/levels/level_12.ron")),
+		load_level(include_str!("../../assets/levels/level_13.ron")),
 		]
 }
 
