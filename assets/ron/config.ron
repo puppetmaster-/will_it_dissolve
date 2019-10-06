@@ -8,7 +8,7 @@
 	fullscreen: false,
 	resizable: false,
 	scaling: ShowAllPixelPerfect,
-	show_mouse: true,
+	show_mouse: false,
 	vsync: true,
 	quit_on_escape: false,
 	master_volume: 2.0,

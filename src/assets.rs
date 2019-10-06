@@ -4,12 +4,12 @@ use std::collections::HashMap;
 
 type TextureHashmap = HashMap<TextureName, Texture>;
 type AnimationHashmap = HashMap<AnimationName, Animation>;
-type SymbolsHashmap = HashMap<SymbolName, Texture>;
+//type SymbolsHashmap = HashMap<SymbolName, Texture>;
 
 pub struct Assets{
 	textures: TextureHashmap,
 	animations: AnimationHashmap,
-	symbols: SymbolsHashmap,
+	//symbols: SymbolsHashmap,
 }
 
 impl Assets{
@@ -17,7 +17,7 @@ impl Assets{
 		Ok(Assets{
 			textures: build_textures(ctx)?,
 			animations: build_animations(ctx)?,
-			symbols: build_symbols(ctx)?,
+			//symbols: build_symbols(ctx)?,
 		})
 	}
 
@@ -29,9 +29,10 @@ impl Assets{
 		&self.animations[&name]
 	}
 
+	/*
 	pub fn get_symbol(&self, name: &SymbolName) -> &Texture{
 		&self.symbols[&name]
-	}
+	}*/
 	
 	pub fn update(&mut self){
 		for animation in self.animations.values_mut(){
@@ -66,22 +67,24 @@ fn build_textures(ctx: &mut Context) ->tetra::Result<TextureHashmap>{
 fn build_animations(ctx: &mut Context) ->tetra::Result<AnimationHashmap>{
 	let tileset = Texture::from_file_data(ctx, include_bytes!("../assets/art/art.png"))?;
 	let button_tileset = Texture::from_file_data(ctx, include_bytes!("../assets/art/button.png"))?;
+	let symbol_tileset = Texture::from_file_data(ctx, include_bytes!("../assets/art/symbol.png"))?;
 	Ok([
 		(AnimationName::Plus, Animation::new(tileset.clone(),Rectangle::row(0.0, 16.0, 16.0, 16.0).take(2).collect(), 6)),
 		(AnimationName::Minus, Animation::new(tileset.clone(),Rectangle::row(32.0, 16.0, 16.0, 16.0).take(2).collect(), 6)),
 		(AnimationName::Future, Animation::new(button_tileset.clone(),Rectangle::row(0.0, 16.0, 32.0, 16.0).take(6).collect(), 6)),
 		(AnimationName::Back, Animation::new(button_tileset.clone(),Rectangle::row(0.0, 32.0, 32.0, 16.0).take(6).collect(), 6)),
 		(AnimationName::Next, Animation::new(button_tileset.clone(),Rectangle::row(0.0, 48.0, 32.0, 16.0).take(6).collect(), 6)),
+		(AnimationName::Action, Animation::new(symbol_tileset.clone(),Rectangle::row(0.0, 0.0, 8.0, 8.0).take(4).collect(), 6)),
 		].iter().cloned().collect()
 	)
 }
-
+/*
 fn build_symbols(ctx: &mut Context) ->tetra::Result<SymbolsHashmap>{
 	Ok([
 		(SymbolName::SymbolClick, Texture::from_file_data(ctx, include_bytes!("../assets/art/symbol_14.png"))?),
 		].iter().cloned().collect()
 	)
-}
+}*/
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -111,14 +114,10 @@ pub enum AnimationName {
 	Back,
 	Future,
 	Next,
+	Action,
 }
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum SoundName {
-	Music,
-}
-
+/*
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SymbolName {
 	SymbolClick,
-}
+}*/

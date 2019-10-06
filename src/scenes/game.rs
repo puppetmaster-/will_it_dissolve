@@ -10,13 +10,13 @@ use tetra::glm::Vec2;
 use rand::prelude::*;
 
 use crate::scenes::manager::{Scene, Transition};
-use crate::assets::{Assets, SymbolName, TextureName};
+use crate::assets::{Assets, AnimationName, TextureName};
 use crate::models::config::Config;
 use crate::tile::{Tile};
 use crate::button::{Button,ButtonType};
 use crate::models::level::{Level,load_level};
 use crate::constants::*;
-use crate::utils::{particle::Particle, timer::Timer};
+use crate::utils::{particle::Particle, timer::Timer, mouse::Mouse};
 
 #[allow(dead_code)]
 pub struct GameScene {
@@ -32,6 +32,7 @@ pub struct GameScene {
 	particles: Vec<Particle>,
 	randomizer: ThreadRng,
 	future_timer: Timer,
+	mouse: Mouse,
 }
 
 impl GameScene {
@@ -45,6 +46,7 @@ impl GameScene {
 			tiles: build_buttons(Rc::clone(&assets), &levels[level-1])?,
 			btn_future: Button::new(Rc::clone(&assets), GET_POSITION_FUTURE_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Future)?,
 			btn_back: Button::new(Rc::clone(&assets), GET_POSITION_BACK_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Back)?,
+			mouse: Mouse::new(Rc::clone(&assets))?,
 			assets,
 			levels,
 			level,
@@ -214,7 +216,7 @@ impl Scene for GameScene {
 		}
 		
 		for i in 0..self.click{
-			graphics::draw(ctx,self.assets.borrow().get_symbol(&SymbolName::SymbolClick),
+			graphics::draw(ctx,self.assets.borrow().get_animation(&AnimationName::Action),
 				Vec2::new(f32::from(i*10 + X_POSITION_MOVES_SYMBOLE), f32::from(Y_POSITION_MOVES_SYMBOLE)));
 		}
 		
@@ -233,6 +235,8 @@ impl Scene for GameScene {
 		}else if self.click == 0 && self.future_timer.finished || self.state == GameState::Win && self.future_timer.finished {
 			graphics::draw(ctx, &self.btn_future, DrawParams::default());
 		}
+		
+		self.mouse.draw(ctx, DrawParams::default());
 		Ok(Transition::None)
 	}
 }
