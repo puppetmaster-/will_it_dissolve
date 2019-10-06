@@ -13,6 +13,7 @@ use crate::models::config::Config;
 use crate::constants::*;
 use crate::utils::tween::TweenPosition;
 
+#[allow(dead_code)]
 pub struct MenuScene {
 	config: Rc<Config>,
 	assets: Rc<RefCell<Assets>>,

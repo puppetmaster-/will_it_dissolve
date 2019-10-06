@@ -6,7 +6,6 @@ pub struct TweenPosition{
 	speed: f32,
 	position: Vec2,
 	start_count: i32,
-	start_direction: Vec2,
 	move_tick: f32,
 	move_count: i32,
 	move_direction: Vec2,
@@ -18,7 +17,6 @@ impl TweenPosition {
 			 position,
 			 speed,
 			 start_count: move_pixel,
-			 start_direction: moving_direction,
 			 move_tick: 0.0,
 			 move_count: move_pixel/2,
 			 move_direction: moving_direction,
@@ -43,12 +41,6 @@ impl TweenPosition {
 	pub fn get_position(&self) -> Vec2{
 		self.position
 	}
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum States{
-	Idle,
-	Moving
 }
 
 pub struct TweenColor{

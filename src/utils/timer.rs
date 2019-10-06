@@ -29,6 +29,7 @@ impl Timer{
 		}
 	}
 	
+	#[allow(dead_code)]
 	pub fn set_duration(&mut self, duration: u64){
 		self.duration = Duration::from_secs(duration);
 	}

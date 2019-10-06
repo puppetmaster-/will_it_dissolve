@@ -2,7 +2,7 @@
 	name: "sneaky",
 	number: 13,
 	values: [1,4,3,4,0,2,4,3,4],
-	states: [true,true,true,true,true,false,true,false,true],
+	states: [true,true,true,true,false,false,true,false,true],
 	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Minus,Normal,Normal],
 	moves: 3,
 )

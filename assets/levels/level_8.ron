@@ -2,7 +2,7 @@
 	name: "too little",
 	number: 8,
 	values: [0,1,0,0,4,0,0,4,0],
-	states: [true,true,true,true,true,true,true,true,true],
+	states: [false,true,false,false,true,false,false,true,false],
 	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal],
 	moves: 1,
 )

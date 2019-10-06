@@ -5,11 +5,11 @@ use tetra::graphics::{Color, Rectangle};
 
 pub const TILE_SIZE: i32 = 16;
 pub const TILE_GAP: i32 = 1;
-pub const TOP_BORDER_SPACING: i32 = 12;
+pub const TOP_BORDER_SPACING: i32 = 20;
 pub const LEFT_BORDER_SPACING: i32 = 24;
 
 pub const X_POSITION_MOVES_SYMBOLE: u8 = 36;
-pub const Y_POSITION_MOVES_SYMBOLE: u8 = 68;
+pub const Y_POSITION_MOVES_SYMBOLE: u8 = 76;
 
 
 pub fn GET_TOUCH_AREA_BUTTON() ->Rectangle{
