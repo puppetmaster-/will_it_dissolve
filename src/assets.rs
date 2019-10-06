@@ -58,6 +58,7 @@ fn build_textures(ctx: &mut Context) ->tetra::Result<TextureHashmap>{
 		(TextureName::Next, Texture::from_file_data(ctx, include_bytes!("../assets/art/button_02.png"))?),
 		(TextureName::JamLogo, Texture::from_file_data(ctx, include_bytes!("../assets/art/open-jam-logo.png"))?),
 		(TextureName::Logo, Texture::from_file_data(ctx, include_bytes!("../assets/art/logo.png"))?),
+		(TextureName::Thx, Texture::from_file_data(ctx, include_bytes!("../assets/art/thx.png"))?),
 		].iter().cloned().collect()
 	)
 }
@@ -100,6 +101,7 @@ pub enum TextureName {
 	Next,
 	JamLogo,
 	Logo,
+	Thx,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

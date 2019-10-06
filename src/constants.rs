@@ -32,6 +32,10 @@ pub fn GET_LOGO_POSITION() -> Vec2{
 	Vec2::new(16.0,30.0)
 }
 
+pub fn GET_THX_POSITION() -> Vec2{
+	Vec2::new(16.0,30.0)
+}
+
 pub fn GET_FUTURE_COLOR() -> Color{
 	Color::rgb8(60,67,101)
 }

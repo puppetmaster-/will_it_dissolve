@@ -10,13 +10,13 @@ use tetra::glm::Vec2;
 use rand::prelude::*;
 
 use crate::scenes::manager::{Scene, Transition};
-use crate::assets::{Assets, SymbolName};
+use crate::assets::{Assets, SymbolName, TextureName};
 use crate::models::config::Config;
 use crate::tile::{Tile};
 use crate::button::{Button,ButtonType};
 use crate::models::level::{Level,load_level};
 use crate::constants::*;
-use crate::utils::particle::{Particle};
+use crate::utils::{particle::Particle, timer::Timer};
 
 #[allow(dead_code)]
 pub struct GameScene {
@@ -31,11 +31,12 @@ pub struct GameScene {
 	btn_back: Button,
 	particles: Vec<Particle>,
 	randomizer: ThreadRng,
+	future_timer: Timer,
 }
 
 impl GameScene {
 	pub fn new(_ctx: &mut Context,config: Rc<Config>, assets: Rc<RefCell<Assets>>) -> tetra::Result<GameScene> {
-		let level = 10;
+		let level = 1;
 		let levels = load_levels();
 		let randomizer = rand::thread_rng();
 		Ok(GameScene {
@@ -50,6 +51,7 @@ impl GameScene {
 			click: 0,
 			particles: vec![],
 			randomizer,
+			future_timer: Timer::new(1),
 		}.init())
 	}
 	
@@ -73,6 +75,8 @@ impl GameScene {
 		if self.level < self.levels.len(){
 			self.level +=1;
 			self.init_level();
+		}else{
+			self.state = GameState::End;
 		}
 	}
 	
@@ -106,8 +110,16 @@ impl GameScene {
 	
 	fn go_future(&mut self){
 		self.state = GameState::Future;
+		self.future_timer.restart();
 		for b in self.tiles.iter_mut(){
-			b.go_future();
+			if b.is_marked(){
+				b.enable();
+				let particle = Particle::new(b.position,Vec2::new(0.0,-1.0))
+					.set_aging(self.randomizer.gen_range(0.002,0.004))
+					.set_texture_name(b.get_texture_name());
+				self.particles.push(particle);
+				b.go_future();
+			}
 		}
 		
 		let mut sum: u8 = self.tiles.iter().map(|t|t.number).sum();
@@ -135,6 +147,9 @@ impl GameScene {
 
 impl Scene for GameScene {
 	fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
+		// timer update
+		self.future_timer.update();
+		
 		// particle update
 		self.particles.retain(|p| !p.is_dead());
 		for p in self.particles.iter_mut(){
@@ -211,12 +226,13 @@ impl Scene for GameScene {
 		}
 
 
-		if self.state == GameState::Lost{
+		if self.state == GameState::Lost && self.future_timer.finished{
 			graphics::draw(ctx, &self.btn_back, DrawParams::default());
-		}else if self.click == 0 || self.state == GameState::Win {
+		}else if self.state == GameState::End && self.future_timer.finished {
+			graphics::draw(ctx, self.assets.borrow().get_texture(&TextureName::Thx), GET_THX_POSITION());
+		}else if self.click == 0 && self.future_timer.finished || self.state == GameState::Win && self.future_timer.finished {
 			graphics::draw(ctx, &self.btn_future, DrawParams::default());
 		}
-		
 		Ok(Transition::None)
 	}
 }
@@ -267,4 +283,5 @@ pub enum GameState {
 	Win,
 	Lost,
 	Future,
+	End,
 }
