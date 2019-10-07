@@ -23,7 +23,7 @@ use crate::models::config::{load_config};
 fn main() -> tetra::Result {
 	color_backtrace::install();
 	simple_logger::init().unwrap();
-	let config = Rc::new(load_config(include_str!("../assets/ron/config.ron")));
+	let config = Rc::new(load_config(include_str!("../assets/config/config.ron")));
 	let version = config.version();
 	ContextBuilder::new(format!("{} v{}", config.titel, version).as_str(), config.window_width, config.window_height)
 		.window_scale(config.window_scale)
