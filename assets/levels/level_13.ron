@@ -5,4 +5,5 @@
 	states: [true,true,true,true,false,false,true,false,true],
 	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Minus,Normal,Normal],
 	moves: 3,
+	remaining_moves: 1,
 )

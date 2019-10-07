@@ -140,6 +140,7 @@ impl GameScene {
 
 		if sum == 0{
 			self.state = GameState::Win;
+			self.click = 0;
 			self.btn_future.change_type_to(ButtonType::Next);
 		}else{
 			self.state = GameState::Lost;
@@ -232,7 +233,7 @@ impl Scene for GameScene {
 			graphics::draw(ctx, &self.btn_back, DrawParams::default());
 		}else if self.state == GameState::End && self.future_timer.finished {
 			graphics::draw(ctx, self.assets.borrow().get_texture(&TextureName::Thx), GET_THX_POSITION());
-		}else if self.click == 0 && self.future_timer.finished || self.state == GameState::Win && self.future_timer.finished {
+		}else if self.click <= self.levels[self.level-1].remaining_moves && self.future_timer.finished || self.state == GameState::Win && self.future_timer.finished {
 			graphics::draw(ctx, &self.btn_future, DrawParams::default());
 		}
 		

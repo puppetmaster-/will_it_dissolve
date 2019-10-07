@@ -3,6 +3,5 @@
 	number: 1,
 	values: [0,1,0,0,2,0,0,2,0],
 	states: [false,true,false,false,true,false,false,true,false],
-	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal],
 	moves: 1,
 )

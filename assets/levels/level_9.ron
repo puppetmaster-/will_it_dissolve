@@ -2,7 +2,5 @@
 	name: "more",
 	number: 9,
 	values: [3,3,4,3,2,4,4,2,1],
-	states: [true,true,true,true,true,true,true,true,true],
-	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal],
 	moves: 3,
 )

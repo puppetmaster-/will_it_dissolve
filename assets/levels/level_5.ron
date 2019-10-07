@@ -2,7 +2,5 @@
 	name: "first blocked",
 	number: 5,
 	values: [1,2,1,1,2,1,2,3,2],
-	states: [true,true,true,true,true,true,true,true,true],
-	flagged: [Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal,Normal],
 	moves: 1,
 )
