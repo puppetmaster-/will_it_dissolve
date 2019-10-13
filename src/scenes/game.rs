@@ -1,59 +1,47 @@
 use std::rc::Rc;
 use std::cell::{RefCell};
-use std::collections::HashSet;
 
-use tetra::graphics::{self, DrawParams, Drawable, Rectangle};
+use tetra::graphics::{self, DrawParams, Drawable};
 use tetra::input::{self, Key};
 use tetra::{Context};
 use tetra::glm::Vec2;
 
-use rand::prelude::*;
-
 use crate::scenes::manager::{Scene, Transition};
 use crate::assets::{Assets, AnimationName, TextureName};
 use crate::models::config::Config;
-use crate::tile::{Tile};
 use crate::button::{Button,ButtonType};
-use crate::models::level::{Level,load_level};
+
 use crate::constants::*;
-use crate::utils::{particle::Particle, timer::Timer, mouse::Mouse};
+use crate::utils::mouse::Mouse;
+use crate::managers::tilemanager::Tilemanager;
+use crate::managers::levelmanager::Levelmanager;
 
 #[allow(dead_code)]
 pub struct GameScene {
 	config: Rc<Config>,
 	assets: Rc<RefCell<Assets>>,
 	state: GameState,
-	tiles: Vec<Tile>,
-	levels: Vec<Level>,
-	level: usize,
-	click: u8,
+	tilemanager: Tilemanager,
+	levelmanager: Levelmanager,
+	actions: u8,
 	btn_future: Button,
 	btn_back: Button,
-	particles: Vec<Particle>,
-	randomizer: ThreadRng,
-	future_timer: Timer,
 	mouse: Mouse,
 }
 
 impl GameScene {
 	pub fn new(_ctx: &mut Context,config: Rc<Config>, assets: Rc<RefCell<Assets>>) -> tetra::Result<GameScene> {
-		let level = 1;
-		let levels = load_levels();
-		let randomizer = rand::thread_rng();
 		Ok(GameScene {
 			config,
 			state: GameState::Running,
-			tiles: build_buttons(Rc::clone(&assets), &levels[level-1])?,
+			tilemanager: Tilemanager::new(Rc::clone(&assets))?,
+			levelmanager: Levelmanager::new(1)?,
 			btn_future: Button::new(Rc::clone(&assets), GET_POSITION_FUTURE_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Future)?,
 			btn_back: Button::new(Rc::clone(&assets), GET_POSITION_BACK_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Back)?,
 			mouse: Mouse::new(Rc::clone(&assets))?,
 			assets,
-			levels,
-			level,
-			click: 0,
-			particles: vec![],
-			randomizer,
-			future_timer: Timer::new(1),
+			actions: 0,
+
 		}.init())
 	}
 	
@@ -63,84 +51,26 @@ impl GameScene {
 	}
 	
 	fn init_level(&mut self){
-		self.click = self.levels[self.level-1].moves;
-		for (i,b) in self.tiles.iter_mut().enumerate(){
-			b.number(self.levels[self.level-1].values[i]);
-			b.set_enabled(self.levels[self.level-1].states[i]);
-			b.mark(self.levels[self.level-1].flagged[i]);
-		}
+		self.actions = self.levelmanager.get_current_level().moves;
+		self.tilemanager.init_level(self.levelmanager.get_current_level());
 		self.state = GameState::Running;
 		self.btn_future.change_type_to(ButtonType::Future);
 	}
 	
 	pub fn next_level(&mut self){
-		if self.level < self.levels.len(){
-			self.level +=1;
+		if self.levelmanager.advance_next_level(){
 			self.init_level();
 		}else{
 			self.state = GameState::End;
 		}
 	}
 	
-	fn change_tile_effect(&mut self, tile_index: HashSet<usize>, round: usize){
-		let directions = vec![Vec2::new(1.0,0.0),Vec2::new(0.0,1.0),Vec2::new(-1.0,0.0),Vec2::new(0.0,-1.0),Vec2::new(1.0,0.0)];
-		for n in tile_index{
-			self.tiles[n].enable();
-			let particle = Particle::new(self.tiles[n].position,directions[round])
-				.set_aging(self.randomizer.gen_range(0.002,0.004))
-				.set_texture_name(self.tiles[n].get_texture_name());
-			self.particles.push(particle);
-		}
-	}
-	
-	fn after_work(&mut self, numbers: Vec<u8>) -> HashSet<usize>{
-		let mut tile_index = HashSet::new();
-		for i in 0..3{
-			if numbers[i*3] == numbers[i*3+1] && numbers[i*3] == numbers[i*3+2] && numbers[i*3] != 0{
-				tile_index.insert(i*3);
-				tile_index.insert(i*3+1);
-				tile_index.insert(i*3+2);
-			}
-			if numbers[i] == numbers[i+3] && numbers[i] == numbers[i+6] && numbers[i] != 0{
-				tile_index.insert(i);
-				tile_index.insert(i+3);
-				tile_index.insert(i+6);
-			}
-		}
-		tile_index
-	}
-	
 	fn go_future(&mut self){
 		self.state = GameState::Future;
-		self.future_timer.restart();
-		for b in self.tiles.iter_mut(){
-			if b.is_marked(){
-				b.enable();
-				let particle = Particle::new(b.position,Vec2::new(0.0,-1.0))
-					.set_aging(self.randomizer.gen_range(0.002,0.004))
-					.set_texture_name(b.get_texture_name());
-				self.particles.push(particle);
-				b.go_future();
-			}
-		}
-		
-		let mut sum: u8 = self.tiles.iter().map(|t|t.number).sum();
-		if sum != 0{
-			for r in 0..4{
-				let numbers = self.tiles.iter().map(|t|t.number).collect::<Vec<_>>();
-				let tile_index = self.after_work(numbers);
-				self.change_tile_effect(tile_index.clone(), r);
-				for n in tile_index{
-					let num = self.tiles[n].number-1;
-					self.tiles[n].number(num);
-				}
-			}
-			sum = self.tiles.iter().map(|t|t.number).sum();
-		}
-
-		if sum == 0{
+		let number_of_visible_tiles = self.tilemanager.go_future();
+		if number_of_visible_tiles == 0{
 			self.state = GameState::Win;
-			self.click = 0;
+			self.actions = 0;
 			self.btn_future.change_type_to(ButtonType::Next);
 		}else{
 			self.state = GameState::Lost;
@@ -150,32 +80,11 @@ impl GameScene {
 
 impl Scene for GameScene {
 	fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
-		// timer update
-		self.future_timer.update();
-		
-		// particle update
-		self.particles.retain(|p| !p.is_dead());
-		for p in self.particles.iter_mut(){
-			p.update();
-		}
-		
 		// update animations
 		self.assets.borrow_mut().update();
-		
-		//update tiles
-		for b in self.tiles.iter_mut(){
-			if b.is_marked(){
-				b.update(ctx);
-				if !b.is_marked(){
-					self.click +=1;
-				}
-			}else if self.click > 0{
-				b.update(ctx);
-				if b.is_marked(){
-					self.click -=1;
-				}
-			}
-		}
+
+		// update tiles
+		self.tilemanager.update(ctx, &mut self.actions);
 		
 		// back button
 		if self.state == GameState::Lost{
@@ -211,75 +120,27 @@ impl Scene for GameScene {
 		}else{
 			graphics::clear(ctx, GET_FUTURE_COLOR());
 		}
-		
-		for b in self.tiles.iter(){
-			b.draw(ctx, DrawParams::default());
-		}
-		
-		for i in 0..self.click{
+		//draw tiles
+		self.tilemanager.draw(ctx);
+
+		//draw actions symbol
+		for i in 0..self.actions{
 			graphics::draw(ctx,self.assets.borrow().get_animation(&AnimationName::Action),
 				Vec2::new(f32::from(i*10 + X_POSITION_MOVES_SYMBOLE), f32::from(Y_POSITION_MOVES_SYMBOLE)));
 		}
-		
-		for p in self.particles.iter().rev() {
-			graphics::draw(ctx, self.assets.borrow().get_texture(&p.get_texture_name()), DrawParams::new()
-				.position(p.get_position())
-				.color(p.get_color())
-			);
-		}
 
-
-		if self.state == GameState::Lost && self.future_timer.finished{
+		// draw future, next or back buttons
+		if self.state == GameState::Lost && self.tilemanager.is_ready(){
 			graphics::draw(ctx, &self.btn_back, DrawParams::default());
-		}else if self.state == GameState::End && self.future_timer.finished {
+		}else if self.state == GameState::End && self.tilemanager.is_ready() {
 			graphics::draw(ctx, self.assets.borrow().get_texture(&TextureName::Thx), GET_THX_POSITION());
-		}else if self.click <= self.levels[self.level-1].remaining_moves && self.future_timer.finished || self.state == GameState::Win && self.future_timer.finished {
+		}else if self.actions <= self.levelmanager.get_current_level().remaining_moves && self.tilemanager.is_ready() || self.state == GameState::Win && self.tilemanager.is_ready() {
 			graphics::draw(ctx, &self.btn_future, DrawParams::default());
 		}
 		
 		self.mouse.draw(ctx, DrawParams::default());
 		Ok(Transition::None)
 	}
-}
-
-
-fn build_buttons(assets: Rc<RefCell<Assets>>, level: &Level) -> tetra::Result<Vec<Tile>>{
-	let touch_area = Rectangle::new(0.0,0.0,16.0,16.0);
-	let positions = get_positions();
-	let mut buttons: Vec<Tile> = vec![];
-	for i in 0..9{
-		buttons.push(Tile::new(Rc::clone(&assets), positions[i], touch_area, level.values[i])?)
-	}
-	Ok(buttons)
-}
-
-fn get_positions() -> Vec<Vec2>{
-	let jump = TILE_SIZE + TILE_GAP;
-	let mut positions = vec![];
-	for i in 0..3{
-		positions.push(Vec2::new((LEFT_BORDER_SPACING+i*jump) as f32,TOP_BORDER_SPACING as f32));
-		positions.push(Vec2::new((LEFT_BORDER_SPACING+i*jump) as f32,(TOP_BORDER_SPACING + jump) as f32));
-		positions.push(Vec2::new((LEFT_BORDER_SPACING+i*jump) as f32,(TOP_BORDER_SPACING + 2*jump) as f32));
-	}
-	positions
-}
-
-fn load_levels() ->Vec<Level>{
-	vec![
-		load_level(include_str!("../../assets/levels/level_1.ron")),
-		load_level(include_str!("../../assets/levels/level_2.ron")),
-		load_level(include_str!("../../assets/levels/level_3.ron")),
-		load_level(include_str!("../../assets/levels/level_4.ron")),
-		load_level(include_str!("../../assets/levels/level_5.ron")),
-		load_level(include_str!("../../assets/levels/level_6.ron")),
-		load_level(include_str!("../../assets/levels/level_7.ron")),
-		load_level(include_str!("../../assets/levels/level_8.ron")),
-		load_level(include_str!("../../assets/levels/level_9.ron")),
-		load_level(include_str!("../../assets/levels/level_10.ron")),
-		load_level(include_str!("../../assets/levels/level_11.ron")),
-		load_level(include_str!("../../assets/levels/level_12.ron")),
-		load_level(include_str!("../../assets/levels/level_13.ron")),
-		]
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

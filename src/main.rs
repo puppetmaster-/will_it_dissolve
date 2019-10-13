@@ -10,6 +10,7 @@ mod assets;
 mod button;
 mod tile;
 mod constants;
+mod managers;
 
 use tetra::ContextBuilder;
 use std::rc::Rc;

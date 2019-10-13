@@ -8,17 +8,17 @@ pub trait Scene {
 
 pub enum Transition {
 	None,
-	Push(Box<Scene>),
+	Push(Box<dyn Scene>),
 	Pop,
 	Quit,
 }
 
 pub struct SceneManager {
-	scenes: Vec<Box<Scene>>,
+	scenes: Vec<Box<dyn Scene>>,
 }
 
 impl SceneManager {
-	pub fn new(initial_scene: Box<Scene>) -> SceneManager {
+	pub fn new(initial_scene: Box<dyn Scene>) -> SceneManager {
 		SceneManager {
 			scenes: vec![initial_scene],
 		}
