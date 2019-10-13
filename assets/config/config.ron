@@ -11,5 +11,5 @@
 	show_mouse: false,
 	vsync: true,
 	quit_on_escape: false,
-	master_volume: 2.0,
+	master_volume: 1.0,
 )
