@@ -1,7 +1,7 @@
 (
 	name: "Right",
 	number: 2,
-	values: [0,1,3,0,1,2,0,1,2],
-	states: [false,true,true,false,true,true,false,true,true],
+	values: [0,0,0,2,2,3,0,0,0],
+	states: [false,false,false,true,true,true,false,false,false],
 	moves: 1,
 )
