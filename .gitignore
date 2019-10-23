@@ -4,6 +4,9 @@
 # eclipse
 *.project
 
+# IntelliJ
+.idea
+
 # lib and dll
 /gnu-mingw/
 /msvc/

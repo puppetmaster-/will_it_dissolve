@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::cell::{RefCell};
 
-use tetra::graphics::{self, DrawParams, Drawable};
+use tetra::graphics::{self, DrawParams, Drawable, Color};
 use tetra::input::{self, Key};
 use tetra::{Context};
 use tetra::glm::Vec2;
@@ -15,6 +15,7 @@ use crate::constants::*;
 use crate::utils::mouse::Mouse;
 use crate::managers::tilemanager::Tilemanager;
 use crate::managers::levelmanager::Levelmanager;
+use crate::models::crossover::Crossover;
 
 #[allow(dead_code)]
 pub struct GameScene {
@@ -27,21 +28,25 @@ pub struct GameScene {
 	btn_future: Button,
 	btn_back: Button,
 	mouse: Mouse,
+	clear_color: Color,
+	level_transition: Crossover,
 }
 
 impl GameScene {
 	pub fn new(_ctx: &mut Context,config: Rc<Config>, assets: Rc<RefCell<Assets>>) -> tetra::Result<GameScene> {
+
 		Ok(GameScene {
-			config,
+			clear_color: config.clear_color,
+			actions: 0,
 			state: GameState::Running,
 			tilemanager: Tilemanager::new(Rc::clone(&assets))?,
 			levelmanager: Levelmanager::new(1)?,
 			btn_future: Button::new(Rc::clone(&assets), GET_POSITION_FUTURE_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Future)?,
 			btn_back: Button::new(Rc::clone(&assets), GET_POSITION_BACK_BUTTON(), GET_TOUCH_AREA_BUTTON(), ButtonType::Back)?,
 			mouse: Mouse::new(Rc::clone(&assets))?,
+			level_transition: Crossover::new(Rc::clone(&assets))?,
 			assets,
-			actions: 0,
-
+			config,
 		}.init())
 	}
 	
@@ -51,9 +56,11 @@ impl GameScene {
 	}
 	
 	fn init_level(&mut self){
+		self.level_transition.play();
 		self.actions = self.levelmanager.get_current_level().moves;
 		self.tilemanager.init_level(self.levelmanager.get_current_level());
 		self.state = GameState::Running;
+		self.clear_color = self.config.clear_color;
 		self.btn_future.change_type_to(ButtonType::Future);
 	}
 	
@@ -70,6 +77,7 @@ impl GameScene {
 		let number_of_visible_tiles = self.tilemanager.go_future();
 		if number_of_visible_tiles == 0{
 			self.state = GameState::Win;
+			self.clear_color = GET_FUTURE_COLOR();
 			self.actions = 0;
 			self.btn_future.change_type_to(ButtonType::Next);
 		}else{
@@ -105,7 +113,9 @@ impl Scene for GameScene {
 				}
 			}
 		}
-		
+
+		self.level_transition.update();
+
 		// check keys
 		if input::is_key_released(ctx, Key::Backspace){
 			Ok(Transition::Pop)
@@ -115,11 +125,8 @@ impl Scene for GameScene {
 	}
 
 	fn draw(&mut self, ctx: &mut Context, _dt: f64) -> tetra::Result<Transition> {
-		if self.state != GameState::Lost && self.state != GameState::Win{
-			graphics::clear(ctx, self.config.clear_color);
-		}else{
-			graphics::clear(ctx, GET_FUTURE_COLOR());
-		}
+		graphics::clear(ctx, self.clear_color);
+
 		//draw tiles
 		self.tilemanager.draw(ctx);
 
@@ -139,6 +146,9 @@ impl Scene for GameScene {
 		}
 		
 		self.mouse.draw(ctx, DrawParams::default());
+
+		self.level_transition.draw(ctx);
+
 		Ok(Transition::None)
 	}
 }

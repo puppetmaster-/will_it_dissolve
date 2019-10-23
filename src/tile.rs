@@ -6,6 +6,7 @@ use tetra::graphics::{Drawable, DrawParams, Vec2, Rectangle};
 use tetra::input::{self, MouseButton};
 use tetra::{Context, glm};
 use crate::assets::{Assets, TextureName, AnimationName};
+use crate::utils::Disabled;
 
 const MAXNUMBER: u8 = 4;
 
@@ -16,7 +17,7 @@ pub struct Tile{
 	touch_area: Rectangle,
 	pressed: bool,
 	pub number: u8,
-	disabled: bool,
+	disabled: Disabled,
 }
 
 #[allow(dead_code)]
@@ -29,7 +30,7 @@ impl Tile {
 			touch_area,
 			pressed: false,
 			number,
-			disabled: false,
+			disabled: Disabled::Off,
 		})
 	}
 
@@ -76,15 +77,15 @@ impl Tile {
 	}
 
 	pub fn disable(&mut self){
-		self.disabled = true;
+		self.disabled = Disabled::On;
 	}
 
 	pub fn enable(&mut self){
-		self.disabled = false;
+		self.disabled = Disabled::Off;
 	}
 
 	pub fn update(&mut self, ctx: &mut Context){
-		if !self.disabled && self.number > 0 {
+		if !bool::from(self.disabled) && self.number > 0 {
 			let mouse_position = glm::round(&input::get_mouse_position(ctx));
 			if is_inside_hover_area(self.position, self.touch_area, mouse_position) {
 				if input::is_mouse_button_down(ctx, MouseButton::Left) && !self.pressed{
@@ -121,50 +122,7 @@ impl Tile {
 	}
 
 	pub fn get_texture_name(&self) -> TextureName{
-		match self.number{
-			0 => {
-					if self.disabled{
-						TextureName::Pic0Off
-					}else{
-						TextureName::Pic0On
-					}
-				},
-			1 => {
-					if self.disabled{
-						TextureName::Pic1Off
-					}else{
-						TextureName::Pic1On
-					}
-				},
-			2 => {
-					if self.disabled{
-						TextureName::Pic2Off
-					}else{
-						TextureName::Pic2On
-					}
-				},
-			3 => {
-				if self.disabled{
-					TextureName::Pic3Off
-				}else{
-					TextureName::Pic3On
-				}
-			},
-			4 => {
-				if self.disabled{
-					TextureName::Pic4Off
-				}else{
-					TextureName::Pic4On
-				}
-			},
-			_ => {
-				if self.disabled{
-					TextureName::Pic1Off
-				}else{
-					TextureName::Pic1On
-				}
-			}
-		}
+		TextureName::from_str(&format!("Pic{}{:?}", self.number, !self.disabled))
 	}
 
 	pub fn is_pressed(&self) -> bool{
